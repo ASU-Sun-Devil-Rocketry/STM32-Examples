@@ -16,9 +16,9 @@ MPU = cortex-m3
 
 # Compiler Arguments
 # Optimize for space, add debugging functionality,
-# Use C99 standard C, execute thumb instructions, generate warnings
+# Use GNU dialect of ISO C11, execute thumb instructions, generate warnings
 # during compilation
-CCARG =  -mcpu=$(MPU) -O0 -g -std=c99 -mthumb -Wall 
+CCARG =  -mcpu=$(MPU) -O0 -g -std=gnu11 -mthumb -Wall 
 
 # Linker Arguments
 LLARG =  -mcpu=$(MPU) -T stm32_ls.ld -nostdlib -Wl,-Map=$(PROGRAM).map
@@ -46,6 +46,6 @@ flash:
 
 # Remove all build files
 clean: 
-	rm *.bin *.o *.map  *.elf *.d 
+	rm *.bin *.o *.map  *.elf *.d *.asm *.i 
 
 # End
