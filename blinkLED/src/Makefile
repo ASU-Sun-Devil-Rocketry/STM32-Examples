@@ -5,38 +5,40 @@
 # Program Name 
 PROGRAM = blink
 
-# Compiler
+# Cross Compiler Compiler
 CC = arm-none-eabi-gcc
 
 # Assembler
 ASM = arm-none-eabi-as
 
 # Processor 
-MPU = -mcpu=cortex-m3
+MPU = cortex-m3
 
 # Compiler Arguments
-CCARG =  -O0 -g -std=c99 -mthumb -Wall # Optimize for space, add debuging, C99 standard C
+# Optimize for space, add debugging functionality,
+# Use C99 standard C, execute thumb instructions, generate warnings
+# during compilation
+CCARG =  -mcpu=$(MPU) -O0 -g -std=c99 -mthumb -Wall 
 
 # Linker Arguments
-LLARG = -T stm32_ls.ld -nostdlib -Wl,-Map=$(PROGRAM).map
+LLARG =  -mcpu=$(MPU) -T stm32_ls.ld -nostdlib -Wl,-Map=$(PROGRAM).map
 
 blink.bin: $(PROGRAM).elf
 	arm-none-eabi-objcopy -O binary $(PROGRAM).elf $(PROGRAM).bin
 
 blink.elf: $(PROGRAM).o
-	$(CC) $(LLARG) $(MPU) -o $(PROGRAM).elf $(PROGRAM).o
+	$(CC) $(LLARG)  -o $(PROGRAM).elf $(PROGRAM).o
 
 blink.o: $(PROGRAM).c
-	$(CC) $(CCARG) $(MPU) -c -o $(PROGRAM).o $(PROGRAM).c
-
+	$(CC) $(CCARG) -c -o $(PROGRAM).o $(PROGRAM).c
 
 # Generate the ARM Assembly Language 
 assembly: 
-	$(CC) $(CCARG) $(MPU) -S -o $(PROGRAM).asm $(PROGRAM).c
+	$(CC) $(CCARG) -S -o $(PROGRAM).asm $(PROGRAM).c
 
 # Generate the output of the preprocessor
 pre-process: 
-	$(CC) $(CCARG) $(MPU) -E -o $(PROGRAM).i $(PROGRAM).c
+	$(CC) $(CCARG) -E -o $(PROGRAM).i $(PROGRAM).c
 
 # Flash the executable file to the microcontroller
 flash: 
