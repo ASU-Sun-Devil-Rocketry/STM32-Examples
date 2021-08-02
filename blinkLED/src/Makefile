@@ -1,4 +1,4 @@
-####################################################################
+######################################################################
 #  Project
 ######################################################################
 
@@ -23,21 +23,26 @@ CCARG =  -mcpu=$(MPU) -O0 -g -std=gnu11 -mthumb -Wall
 # Linker Arguments
 LLARG =  -mcpu=$(MPU) -T stm32_ls.ld -nostdlib -Wl,-Map=$(PROGRAM).map
 
+all: $(PROGRAM).o startup.o
+
 blink.bin: $(PROGRAM).elf
 	arm-none-eabi-objcopy -O binary $(PROGRAM).elf $(PROGRAM).bin
 
 blink.elf: $(PROGRAM).o
 	$(CC) $(LLARG)  -o $(PROGRAM).elf $(PROGRAM).o
 
+startup.o: startup.c
+	$(CC) $(CCARG) -c -o startup.o startup.c
+
 blink.o: $(PROGRAM).c
 	$(CC) $(CCARG) -c -o $(PROGRAM).o $(PROGRAM).c
 
 # Generate the ARM Assembly Language 
-assembly: 
+assembly: $(PROGRAM).c 
 	$(CC) $(CCARG) -S -o $(PROGRAM).asm $(PROGRAM).c
 
 # Generate the output of the preprocessor
-pre-process: 
+pre-process: $(PROGRAM).c
 	$(CC) $(CCARG) -E -o $(PROGRAM).i $(PROGRAM).c
 
 # Flash the executable file to the microcontroller
