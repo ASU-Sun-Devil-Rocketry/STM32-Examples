@@ -26,6 +26,8 @@
 extern uint32_t _etext;
 extern uint32_t _sdata;
 extern uint32_t _edata;
+extern uint32_t _ebss;
+extern uint32_t _sbss;
 
 // System Exception Prototypes
 void Reset_Handler(void);
@@ -189,11 +191,22 @@ void Default_Handler(void){
 
 void Reset_Handler(void){
     // copy the .data section to SRAM
+    uint32_t size = &_edata - &_sdata;
+    uint32_t *pDest = (uint32_t*) &_sdata; // Flash
+    uint32_t *pSrc = (uint32_t*) &_etext; // SRAM
+    for (uint32_t i = 0; i < size; i++){
+        *pDest++ = *pSrc++;
+    }
 
     // Initialize the .bss section to zero in SRAM
+    size = &_ebss - &_sbss;
+    pDest = &_sbss;
+    for (uint32_t i = 0; i < size; i++){
+        *pDest++ = 0;
+    }
 
     // Call init function of std. library
 
     // Call main()
-
+    main();
 }
