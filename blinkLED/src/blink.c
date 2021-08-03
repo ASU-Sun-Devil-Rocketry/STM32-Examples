@@ -21,8 +21,6 @@
 // Address: 0x4002 1018
 #define RCC_APB2ENR    (*((volatile uint32_t*) 0x40021018))
 
-const int number = 14;
-
 void initStatusLED(void){
 
     // Enable the GPIO Clock

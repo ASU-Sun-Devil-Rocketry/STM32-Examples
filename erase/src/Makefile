@@ -1,44 +1,74 @@
-#####################################################################
-#  Project
+######################################################################
+#  ARM Cortex-M3 Example Makefile
+#
+#  Main Build Process: 
+#      1. Compile program.c and startup.c sourcefiles to .o files
+#      2. Run the linker to generate the merged .elf file
+#      3. Copy the .elf file into .bin format for the MCU
+#      4. Flash the MCU with the .bin file via the SWD interface and
+#         the st-flash utility  
+#  
+#  Additional Build Features:
+#      1. pre-process: generate the result of executing the 
+#         pre-processor directives
+#      2. assembly: generate the assembly from the C source code
+#      3. printSymbols: print all the symbols and corresponding 
+#         memory addresses produced by the linker
 ######################################################################
 
 # Program Name 
-PROGRAM = erase 
+PROGRAM = erase
 
-# Compiler
+# Cross Compiler Compiler
 CC = arm-none-eabi-gcc
 
+# Assembler
+ASM = arm-none-eabi-as
+
 # Processor 
-MPU = -mcpu=cortex-m3
-MPU += -mfloat-abi=soft # Software FPU
+MPU = cortex-m3
 
 # Compiler Arguments
-CCARG = -Os -g -std=c99 -MD # Optimize for space, add debuging, C99 standard C
-CCARG += -ffunction-sections -fdata-sections # Options for program organization
+# Optimize for space, add debugging functionality,
+# Use GNU dialect of ISO C11, execute thumb instructions, generate warnings
+# during compilation
+CCARG =  -mcpu=$(MPU) -O0 -g -std=gnu11 -mthumb -Wall 
 
-# Warning Options
-WARN = -Wall -Wundef -Wimplicit-function-declaration -Wredundant-decls -Wmissing-prototypes -Wstrict-prototypes
+# Linker Arguments
+LLARG =  -mcpu=$(MPU) -nostdlib -g -Wl,-Map=$(PROGRAM).map
 
-# Library Directory
-LIBDIR = ../lib
+all: erase.o startup.o erase.elf erase.bin 
 
-# Linker Script
-LNK = $(LIBDIR)/stm32f103c8t6.ld
+erase.bin: erase.elf
+	arm-none-eabi-objcopy -O binary $(PROGRAM).elf $(PROGRAM).bin
 
+erase.elf: erase.o startup.o
+	$(CC) $(LLARG) -T erase.ld -o erase.elf erase.o startup.o
 
-erase.bin: $(PROGRAM).elf
-	arm-none-eabi-objcopy -Obinary $(PROGRAM).elf $(PROGRAM).bin
+startup.o: startup.c
+	$(CC) $(CCARG) -c -o startup.o startup.c
 
-erase.elf: $(PROGRAM)
-	$(CC) -nostartfiles -T$(LNK) $(MPU) $(PROGRAM).o -Wl,-lopencm3_stm32f1 -o $(PROGRAM).elf
+erase.o: erase.c
+	$(CC) $(CCARG) -c -o erase.o erase.c
 
-erase.o: $(PROGRAM).c
-	$(CC) $(CCARG) $(MPU) $(WARN) -I$(LIBDIR) -DSTM32F1 -o $(PROGRAM).o -c $(PROGRAM).c
+# Generate the ARM Assembly Language 
+assembly: erase.c 
+	$(CC) $(CCARG) -S -o $(PROGRAM).asm $(PROGRAM).c
 
+# Generate the output of the preprocessor
+pre-process: erase.c 
+	$(CC) $(CCARG) -E -o $(PROGRAM).i $(PROGRAM).c
+
+# Print all the symbols produced by the linker
+printSymbols: erase.elf 
+	arm-none-eabi-nm $(PROGRAM).elf
+
+# Flash the executable file to the microcontroller
 flash: 
-	st-flash write $(PROGRAM).bin 0x8000000
+	st-flash write $(PROGRAM).bin 0x08000000
 
+# Remove all build files
 clean: 
-	rm *.bin *.o *.elf *.d 
+	rm *.bin *.o *.map  *.elf *.d *.asm *.i 
 
 # End
