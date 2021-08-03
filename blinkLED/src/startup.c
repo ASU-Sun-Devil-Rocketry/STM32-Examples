@@ -21,6 +21,12 @@
 // Initialize Stack pointer to end of SRAM
 #define STACK_START    SRAM_END
 
+// Use linker symbols to access .text and .data regions
+// of Flash memory 
+extern uint32_t _etext;
+extern uint32_t _sdata;
+extern uint32_t _edata;
+
 // System Exception Prototypes
 void Reset_Handler(void);
 void NMI_Handler(void)                  __attribute__ ((weak, alias("Default_Handler")));

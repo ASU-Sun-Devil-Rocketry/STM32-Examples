@@ -45,6 +45,10 @@ assembly: $(PROGRAM).c
 pre-process: $(PROGRAM).c
 	$(CC) $(CCARG) -E -o $(PROGRAM).i $(PROGRAM).c
 
+# Print all the symbols produced by the compiler
+printSymbols: $(PROGRAM).elf
+	arm-none-eabi-nm $(PROGRAM).elf
+
 # Flash the executable file to the microcontroller
 flash: 
 	st-flash write $(PROGRAM).bin 0x08000000
