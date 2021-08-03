@@ -4,6 +4,8 @@
 *            default exception handlers                      *
 *                                                            * 
 * MCU: 	STM32F103C8T6 ARM Cortex-M3                          *
+*       - 20 KBytes of SRAM                                  *
+*       - 64 KBytes of Flash                                 *
 *                                                            * 
 * Author: Colton Acosta, cacost12@asu.edu                    *
 *                                                            * 
@@ -13,7 +15,7 @@
 
 // SRAM Preprocessor Directives
 #define SRAM_START 0x20000000U
-#define SRAM_SIZE (96 * 1024) // 96 KB
+#define SRAM_SIZE (20U * 1024U) // 20 KB
 #define SRAM_END ((SRAM_START) + (SRAM_SIZE))
 
 // Initialize Stack pointer to end of SRAM
@@ -180,6 +182,12 @@ void Default_Handler(void){
 }
 
 void Reset_Handler(void){
+    // copy the .data section to SRAM
 
+    // Initialize the .bss section to zero in SRAM
+
+    // Call init function of std. library
+
+    // Call main()
 
 }

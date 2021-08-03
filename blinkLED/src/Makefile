@@ -21,15 +21,15 @@ MPU = cortex-m3
 CCARG =  -mcpu=$(MPU) -O0 -g -std=gnu11 -mthumb -Wall 
 
 # Linker Arguments
-LLARG =  -mcpu=$(MPU) -T stm32_ls.ld -nostdlib -Wl,-Map=$(PROGRAM).map
+LLARG =  -mcpu=$(MPU) -nostdlib -g -Wl,-Map=$(PROGRAM).map
 
-all: $(PROGRAM).o startup.o
+all: $(PROGRAM).o startup.o $(PROGRAM).elf $(PROGRAM).bin
 
 blink.bin: $(PROGRAM).elf
 	arm-none-eabi-objcopy -O binary $(PROGRAM).elf $(PROGRAM).bin
 
-blink.elf: $(PROGRAM).o
-	$(CC) $(LLARG)  -o $(PROGRAM).elf $(PROGRAM).o
+blink.elf: $(PROGRAM).o startup.o
+	$(CC) $(LLARG) -T $(PROGRAM).ld  -o $(PROGRAM).elf $(PROGRAM).o startup.o
 
 startup.o: startup.c
 	$(CC) $(CCARG) -c -o startup.o startup.c
